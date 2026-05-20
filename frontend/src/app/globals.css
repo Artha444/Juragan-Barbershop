@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --color-juragan-red: #E60000;
+  --color-juragan-dark: #121212;
+  --color-juragan-darker: #0a0a0a;
+}
+
+@layer base {
+  body {
+    @apply bg-juragan-darker text-white;
+  }
+}
