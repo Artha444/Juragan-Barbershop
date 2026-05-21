@@ -1,30 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Calendar } from "lucide-react";
 
-export default function Hero() {
+interface HeroProps {
+  heroData: {
+    title: string;
+    description: string;
+    bg_image: string;
+  };
+  onBookingClick: () => void;
+}
+
+export default function Hero({ heroData, onBookingClick }: HeroProps) {
   return (
     <section id="home" className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-      {/* Video Background */}
+      {/* Background Image */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
+        <img
+          src={heroData.bg_image}
+          alt="Hero Background"
           className="object-cover w-full h-full"
-          poster="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
-        >
-          {/* Using a placeholder stock video */}
-          <source
-            src="https://cdn.pixabay.com/video/2019/11/02/28574-370566367_large.mp4"
-            type="video/mp4"
-          />
-        </video>
-        {/* Dark Overlay (50% opacity) */}
-        <div className="absolute inset-0 bg-black/60 z-10" />
+        />
+        {/* Dark Overlay (60% opacity) */}
+        <div className="absolute inset-0 bg-black/70 z-10" />
       </div>
 
       {/* Content */}
@@ -35,7 +34,18 @@ export default function Hero() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="font-display font-black text-5xl md:text-7xl lg:text-8xl text-white mb-6 uppercase tracking-tight max-w-5xl leading-tight"
         >
-          Tampil <span className="text-transparent bg-clip-text bg-gradient-to-r from-juragan-red to-red-500">Maksimal</span> dan Berkelas
+          {heroData.title.split(" ").map((word, index, arr) => {
+            // Stylize some word, e.g. the second-to-last word or "Maksimal"
+            const isRed = word.toLowerCase() === "maksimal" || index === Math.floor(arr.length / 2);
+            if (isRed) {
+              return (
+                <span key={index} className="text-transparent bg-clip-text bg-gradient-to-r from-juragan-red to-red-500 mr-2">
+                  {word}{" "}
+                </span>
+              );
+            }
+            return <span key={index} className="mr-2">{word} </span>;
+          })}
         </motion.h1>
         
         <motion.p
@@ -44,7 +54,7 @@ export default function Hero() {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           className="text-lg md:text-2xl text-gray-300 mb-10 max-w-2xl font-light"
         >
-          Layanan pangkas rambut dan perawatan pria premium dengan kapster berpengalaman.
+          {heroData.description}
         </motion.p>
 
         <motion.div
@@ -52,13 +62,13 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <Link
-            href="#booking"
-            className="group relative flex items-center gap-3 bg-white text-juragan-darker hover:bg-gray-100 px-8 py-4 rounded-full font-bold text-lg md:text-xl transition-all duration-300 hover:scale-105"
+          <button
+            onClick={onBookingClick}
+            className="group relative flex items-center gap-3 bg-white text-juragan-darker hover:bg-gray-100 px-8 py-4 rounded-full font-bold text-lg md:text-xl transition-all duration-300 hover:scale-105 cursor-pointer shadow-lg shadow-white/10"
           >
             <Calendar className="w-6 h-6 text-juragan-red group-hover:animate-bounce" />
             <span>Pilih Jadwal Pangkas</span>
-          </Link>
+          </button>
         </motion.div>
       </div>
 

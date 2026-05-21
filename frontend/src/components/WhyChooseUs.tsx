@@ -12,7 +12,7 @@ const features = [
   {
     icon: <Wind className="w-10 h-10 text-juragan-red" />,
     title: "Tempat Nyaman & AC",
-    description: "Full music, bersih, dingin, dan santai untuk pengalaman terbaik.",
+    description: "Free wifi, Free drink, Handuk hangat, Netflix, bersih, dingin, dan santai untuk pengalaman terbaik.",
   },
   {
     icon: <Award className="w-10 h-10 text-juragan-red" />,
@@ -31,7 +31,7 @@ export default function WhyChooseUs() {
     <section id="why-us" className="py-24 bg-juragan-dark">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -39,7 +39,7 @@ export default function WhyChooseUs() {
           >
             Keunggulan <span className="text-juragan-red">Kami</span>
           </motion.h2>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}

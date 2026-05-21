@@ -2,10 +2,17 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Scissors } from "lucide-react";
+import Image from "next/image";
+import { Menu, X, LogOut, LogIn, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { signout } from "@/app/auth/actions";
 
-export default function Navbar() {
+interface NavbarProps {
+  currentUser: any;
+  userRole?: string;
+}
+
+export default function Navbar({ currentUser, userRole }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -32,11 +39,15 @@ export default function Navbar() {
       }`}
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <Link href="#home" className="flex items-center gap-2 z-50">
-          <Scissors className="w-8 h-8 text-juragan-red" />
-          <span className="font-display font-bold text-2xl tracking-wider text-white">
-            JURAGAN
-          </span>
+        <Link href="#home" className="flex items-center z-50">
+          <Image
+            src="/logo.jpg"
+            alt="Juragan Barbershop Logo"
+            width={120}
+            height={40}
+            className="h-10 md:h-12 w-auto object-contain rounded-lg hover:opacity-90 transition-opacity"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}
@@ -52,13 +63,28 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
+            {currentUser && userRole === "admin" && (
+              <li>
+                <Link
+                  href="/admin/dashboard"
+                  className="text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+                >
+                  <LayoutDashboard size={16} />
+                  Dashboard
+                </Link>
+              </li>
+            )}
           </ul>
-          <Link
-            href="#booking"
-            className="bg-juragan-red hover:bg-red-700 text-white px-6 py-2.5 rounded-full font-semibold transition-colors duration-300 shadow-[0_0_15px_rgba(230,0,0,0.4)] hover:shadow-[0_0_25px_rgba(230,0,0,0.6)]"
-          >
-            Booking Sekarang
-          </Link>
+
+          {currentUser && userRole !== "admin" && (
+            <button
+              onClick={() => signout()}
+              className="flex items-center gap-2 bg-gray-900 border border-gray-800 hover:bg-juragan-red hover:text-white px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-gray-300 cursor-pointer"
+            >
+              <LogOut size={16} />
+              Keluar
+            </button>
+          )}
         </nav>
 
         {/* Mobile Toggle */}
@@ -90,14 +116,32 @@ export default function Navbar() {
                     </Link>
                   </li>
                 ))}
+                {currentUser && userRole === "admin" && (
+                  <li>
+                    <Link
+                      href="/admin/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-2xl font-display font-semibold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-2 justify-center"
+                    >
+                      <LayoutDashboard size={20} />
+                      Dashboard Admin
+                    </Link>
+                  </li>
+                )}
               </ul>
-              <Link
-                href="#booking"
-                onClick={() => setMobileMenuOpen(false)}
-                className="bg-juragan-red text-white px-8 py-4 rounded-full font-bold text-lg mt-4 shadow-lg shadow-juragan-red/30"
-              >
-                Booking Sekarang
-              </Link>
+
+              {currentUser && userRole !== "admin" && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signout();
+                  }}
+                  className="flex items-center gap-2 bg-gray-900 border border-gray-800 hover:bg-juragan-red text-white px-8 py-4 rounded-full font-bold text-lg mt-4 cursor-pointer"
+                >
+                  <LogOut size={20} />
+                  Keluar Akun
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
