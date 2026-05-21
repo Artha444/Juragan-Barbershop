@@ -1,16 +1,30 @@
 {
-  "name": "juragan-barbershop-workspace",
-  "version": "1.0.0",
+  "name": "juragan_barbershop",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev:frontend": "npm run dev --prefix frontend",
-    "dev:backend": "npm run dev --prefix backend",
-    "dev": "concurrently -n \"frontend,backend\" -c \"cyan,magenta\" \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "build:frontend": "npm run build --prefix frontend",
-    "build:backend": "npm run build --prefix backend",
-    "build": "npm run build:frontend && npm run build:backend"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.0",
+    "framer-motion": "^12.39.0",
+    "lucide-react": "^1.16.0",
+    "next": "16.2.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
