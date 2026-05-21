@@ -1,7 +1,7 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect, useTransition } from "react";
-import Link from "next/link";
 import { X, Calendar, Clock, Sparkles, Check, User, Phone, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createBooking, getOccupiedTimes } from "@/app/actions/booking";

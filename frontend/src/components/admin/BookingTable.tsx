@@ -18,7 +18,7 @@ interface Booking {
 }
 
 interface BookingTableProps {
-  bookingsData: any[];
+  bookingsData: Booking[];
 }
 
 export default function BookingTable({ bookingsData }: BookingTableProps) {

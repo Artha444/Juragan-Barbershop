@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import WhyChooseUs from "@/components/WhyChooseUs";
@@ -27,8 +28,8 @@ interface GalleryItem {
 }
 
 interface MainClientWrapperProps {
-  user: any;
-  profile: any;
+  user: User | null;
+  profile: { role: string; full_name: string | null } | null;
   heroContent: {
     title: string;
     description: string;

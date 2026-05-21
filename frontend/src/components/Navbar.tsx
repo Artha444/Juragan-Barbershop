@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, LogOut, LogIn, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signout } from "@/app/auth/actions";
+import type { User } from "@supabase/supabase-js";
 
 interface NavbarProps {
-  currentUser: any;
+  currentUser: User | null;
   userRole?: string;
 }
 
