@@ -11,6 +11,9 @@ interface Service {
   name: string;
   price: string;
   features: string[];
+  popular?: boolean;
+  special_badge?: string | null;
+  discount_note?: string | null;
 }
 
 interface BookingModalProps {
@@ -49,6 +52,87 @@ export default function BookingModal({
   const [success, setSuccess] = useState<boolean>(false);
   const [whatsappUrl, setWhatsappUrl] = useState<string>("");
   const [isPending, startTransition] = useTransition();
+  const [includeKeramas, setIncludeKeramas] = useState<boolean>(false);
+
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+
+  // Helper to extract keramas price from special badge
+  const getKeramasPrice = (badge: string | null | undefined) => {
+    if (!badge) return null;
+    const clean = badge.trim();
+    const match = clean.match(/(?:keramas\s*\+?\s*)?(.*)/i);
+    if (match && match[1]) {
+      const priceVal = match[1].trim();
+      return priceVal;
+    }
+    return clean;
+  };
+
+  // Dynamically load Cloudflare Turnstile script
+  useEffect(() => {
+    if (!siteKey || typeof window === "undefined") return;
+
+    if (!document.getElementById("turnstile-script")) {
+      const script = document.createElement("script");
+      script.id = "turnstile-script";
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+  }, [siteKey]);
+
+  // Render Turnstile widget dynamically when open
+  useEffect(() => {
+    if (!isOpen || !siteKey || typeof window === "undefined") return;
+
+    let active = true;
+    let widgetId: string | null = null;
+
+    const renderWidget = () => {
+      if (typeof window !== "undefined" && (window as any).turnstile && active) {
+        try {
+          const container = document.getElementById("turnstile-container");
+          if (container && container.innerHTML === "") {
+            widgetId = (window as any).turnstile.render("#turnstile-container", {
+              sitekey: siteKey,
+              callback: (token: string) => {
+                setTurnstileToken(token);
+                setError(null);
+              },
+              "expired-callback": () => {
+                setTurnstileToken("");
+              },
+              "error-callback": () => {
+                setTurnstileToken("");
+              },
+              theme: "dark",
+            });
+          }
+        } catch (err) {
+          console.error("Error rendering Turnstile:", err);
+        }
+      } else if (active) {
+        // Retry in 100ms
+        setTimeout(renderWidget, 100);
+      }
+    };
+
+    renderWidget();
+
+    return () => {
+      active = false;
+      if (widgetId && typeof window !== "undefined" && (window as any).turnstile) {
+        try {
+          (window as any).turnstile.remove(widgetId);
+        } catch (err) {
+          console.error("Error removing Turnstile widget:", err);
+        }
+      }
+      setTurnstileToken("");
+    };
+  }, [isOpen, siteKey]);
 
   // Prefill user details if logged in
   useEffect(() => {
@@ -77,6 +161,8 @@ export default function BookingModal({
       setSelectedService("");
       setSelectedDate("");
       setSelectedTime("");
+      setIncludeKeramas(false);
+      setTurnstileToken("");
       setWhatsappUrl("");
       if (currentUser) {
         setCustomerName(currentUser.user_metadata?.full_name || "");
@@ -94,6 +180,11 @@ export default function BookingModal({
       return;
     }
 
+    if (siteKey && !turnstileToken) {
+      setError("Silakan centang verifikasi keamanan (captcha) terlebih dahulu.");
+      return;
+    }
+
     startTransition(async () => {
       const res = await createBooking({
         customerName,
@@ -101,19 +192,29 @@ export default function BookingModal({
         serviceId: selectedService,
         bookingDate: selectedDate,
         bookingTime: selectedTime,
+        includeKeramas,
+        turnstileToken,
       });
 
       if (res.error) {
         setError(res.error);
       } else {
-        const serviceName = services.find((s) => s.id === selectedService)?.name || "";
+        const selectedSvc = services.find((s) => s.id === selectedService);
+        const serviceName = selectedSvc?.name || "";
         const formattedDate = new Date(selectedDate).toLocaleDateString("id-ID", {
           weekday: "long",
           day: "numeric",
           month: "long",
           year: "numeric",
         });
-        const message = `Halo Admin, saya ${customerName} ingin mengonfirmasi booking pangkas untuk paket ${serviceName} pada tanggal ${formattedDate} jam ${selectedTime}.`;
+        
+        let packageDetails = serviceName;
+        if (includeKeramas && selectedSvc) {
+          const kPrice = getKeramasPrice(selectedSvc.special_badge);
+          packageDetails += ` + Keramas (+ Rp ${kPrice})`;
+        }
+
+        const message = `Halo Admin, saya ${customerName} ingin mengonfirmasi booking pangkas untuk paket ${packageDetails} pada tanggal ${formattedDate} jam ${selectedTime}.`;
         const encodedMessage = encodeURIComponent(message);
         
         let cleanShopPhone = businessWhatsapp;
@@ -222,19 +323,57 @@ export default function BookingModal({
                       {services.map((service) => (
                         <div
                           key={service.id}
-                          onClick={() => setSelectedService(service.id)}
-                          className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                          onClick={() => {
+                            setSelectedService(service.id);
+                            setIncludeKeramas(false);
+                          }}
+                          className={`relative p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                             selectedService === service.id
                               ? "bg-juragan-red/10 border-juragan-red shadow-[0_0_15px_rgba(230,0,0,0.1)]"
                               : "bg-juragan-darker border-gray-800 hover:border-gray-700"
                           }`}
                         >
-                          <div className="font-bold text-white">{service.name}</div>
+                          {service.popular && (
+                            <span className="absolute top-2 right-3 bg-juragan-red text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                              Paling Laris
+                            </span>
+                          )}
+                          <div className="font-bold text-white pr-16">{service.name}</div>
                           <div className="text-juragan-red font-black mt-2">{service.price}</div>
                         </div>
                       ))}
                     </div>
                   </div>
+
+                  {/* Keramas Addon Option (Dynamic based on selected service) */}
+                  {selectedService && (() => {
+                    const svc = services.find((s) => s.id === selectedService);
+                    const keramasPrice = svc ? getKeramasPrice(svc.special_badge) : null;
+                    if (!keramasPrice) return null;
+                    return (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-juragan-darker border border-gray-800 p-4 rounded-2xl flex items-center justify-between hover:border-amber-500/30 transition-all duration-300"
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            id="includeKeramas"
+                            checked={includeKeramas}
+                            onChange={(e) => setIncludeKeramas(e.target.checked)}
+                            className="w-4 h-4 rounded text-amber-500 focus:ring-amber-550 bg-juragan-dark border-gray-800 cursor-pointer"
+                          />
+                          <label htmlFor="includeKeramas" className="text-sm font-bold text-white cursor-pointer select-none">
+                            Tambah Layanan Keramas (+ Rp {keramasPrice})
+                          </label>
+                        </div>
+                        <span className="text-amber-400 font-black text-[10px] uppercase tracking-wider bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                          Rekomendasi
+                        </span>
+                      </motion.div>
+                    );
+                  })()}
 
                   {/* 2. Customer details */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -325,6 +464,13 @@ export default function BookingModal({
                       )}
                     </div>
                   </div>
+
+                  {/* Turnstile Captcha */}
+                  {siteKey && (
+                    <div className="flex justify-center py-2 shrink-0">
+                      <div id="turnstile-container" />
+                    </div>
+                  )}
 
                   {/* Submit Button */}
                   <div className="pt-4 shrink-0">

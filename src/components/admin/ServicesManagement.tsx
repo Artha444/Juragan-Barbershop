@@ -174,11 +174,11 @@ export default function ServicesManagement({ initialServices }: ServicesManageme
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Label Emas Spesial (Opsional)
+                  Harga Keramas Tambahan (Opsional)
                 </label>
                 <input
                   type="text"
-                  placeholder="Contoh: Keramas + 5.000"
+                  placeholder="Contoh: 5.000 (Kosongkan jika tidak ada)"
                   value={editingService.special_badge || ""}
                   onChange={(e) => setEditingService({ ...editingService, special_badge: e.target.value })}
                   className="w-full px-4 py-3 bg-juragan-darker border border-gray-800 rounded-xl text-white focus:outline-none focus:border-juragan-red transition-colors text-sm"
@@ -291,25 +291,34 @@ export default function ServicesManagement({ initialServices }: ServicesManageme
               <div
                 key={service.id}
                 className={`relative bg-juragan-dark p-6 rounded-2xl border ${
-                  service.special_badge
+                  service.popular
+                    ? "border-juragan-red shadow-[0_0_30px_rgba(230,0,0,0.1)]"
+                    : service.special_badge
                     ? "border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.1)]"
-                    : service.popular
-                    ? "border-juragan-red"
                     : "border-gray-800"
                 } flex flex-col justify-between`}
               >
-                {service.special_badge ? (
-                  <span className="absolute -top-3 left-6 bg-amber-500 text-black text-[10px] font-black px-3 py-0.5 rounded-full uppercase tracking-wider shadow-sm shadow-amber-500/10">
-                    {service.special_badge}
-                  </span>
-                ) : service.popular ? (
-                  <span className="absolute -top-3 left-6 bg-juragan-red text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                {/* Paling Laris badge — merah, di atas kartu */}
+                {service.popular && (
+                  <span className="absolute -top-3 left-6 bg-juragan-red text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-sm shadow-juragan-red/30">
                     Paling Laris
                   </span>
-                ) : null}
+                )}
                 <div>
                   <h3 className="text-xl font-bold text-white mb-1">{service.name}</h3>
-                  <div className="text-2xl font-black text-juragan-red mb-4">{service.price}</div>
+                  <div className="text-2xl font-black text-juragan-red mb-2">{service.price}</div>
+
+                  {/* Label Emas Spesial — di bawah harga */}
+                  {service.special_badge && (() => {
+                    const clean = service.special_badge.trim();
+                    const badgeText = clean.toLowerCase().includes("keramas") ? clean : `Keramas +${clean}`;
+                    return (
+                      <div className="mb-3 inline-flex items-center gap-1.5 bg-amber-500/15 border border-amber-500/40 rounded-full px-3 py-0.5 text-[10px] text-amber-400 font-black uppercase tracking-wider">
+                        ✦ {badgeText}
+                      </div>
+                    );
+                  })()}
+
                   {service.discount_note && (
                     <div className="mb-4 bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 text-[10px] text-amber-400 font-semibold text-center">
                       {service.discount_note}

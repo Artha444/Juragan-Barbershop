@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS public.bookings (
     booking_date DATE NOT NULL,
     booking_time TEXT NOT NULL, -- e.g. "10:00"
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')),
+    include_keramas BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
@@ -128,6 +129,15 @@ CREATE POLICY "Allow admin to manage all bookings" ON public.bookings
 
 CREATE POLICY "Allow public to insert bookings" ON public.bookings
     FOR INSERT TO public WITH CHECK (true);
+
+-- Table to store daily opening and closing times
+CREATE TABLE IF NOT EXISTS operational_hours (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  day_of_week int NOT NULL CHECK (day_of_week BETWEEN 0 AND 6), -- 0=Sunday, 6=Saturday
+  open_time time NOT NULL,
+  close_time time NOT NULL,
+  created_at timestamp with time zone DEFAULT now()
+);
 
 -- 4. Insert initial values
 

@@ -48,7 +48,7 @@ export default function Services({ servicesData }: ServicesProps) {
             Belum ada paket layanan yang ditambahkan.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto justify-center">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto justify-center">
             {servicesData.map((service, index) => (
               <motion.div
                 key={service.id}
@@ -56,26 +56,34 @@ export default function Services({ servicesData }: ServicesProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className={`relative bg-juragan-dark p-8 rounded-2xl border ${
-                  service.special_badge
-                    ? "border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.15)]"
-                    : service.popular
+                className={`relative bg-juragan-dark p-6 rounded-2xl border ${
+                  service.popular
                     ? "border-juragan-red shadow-[0_0_30px_rgba(230,0,0,0.15)]"
+                    : service.special_badge
+                    ? "border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.15)]"
                     : "border-gray-800"
-                } flex flex-col`}
+                } hover:border-juragan-red/50 hover:shadow-lg transition-all duration-300 group flex flex-col`}
               >
-                {service.special_badge ? (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-black px-4 py-1 rounded-full uppercase tracking-wider shadow-md shadow-amber-500/20">
-                    {service.special_badge}
-                  </div>
-                ) : service.popular ? (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-juragan-red text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">
+                {/* Paling Laris badge — merah, di atas kartu */}
+                {service.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-juragan-red text-white text-xs font-black px-4 py-1 rounded-full uppercase tracking-wider shadow-md shadow-juragan-red/30">
                     Paling Laris
                   </div>
-                ) : null}
+                )}
 
-                <h3 className="text-2xl font-bold text-white mb-2">{service.name}</h3>
-                <div className="text-4xl font-black text-juragan-red mb-6">{service.price}</div>
+                <h3 className="text-lg font-bold mb-2 text-white group-hover:text-juragan-red transition-colors">{service.name}</h3>
+                <div className="text-4xl font-black text-juragan-red mb-3">{service.price}</div>
+
+                {/* Label Emas Spesial — di bawah harga */}
+                {service.special_badge && (() => {
+                  const clean = service.special_badge.trim();
+                  const badgeText = clean.toLowerCase().includes("keramas") ? clean : `Keramas +${clean}`;
+                  return (
+                    <div className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 rounded-full px-3 py-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider mb-4 w-fit hover:bg-amber-500/20 transition-all duration-300">
+                      <span>✦ {badgeText}</span>
+                    </div>
+                  );
+                })()}
 
                 {service.discount_note && (
                   <div className="mb-6 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-400 font-semibold flex items-center justify-center text-center">

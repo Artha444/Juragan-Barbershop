@@ -65,27 +65,46 @@ export default function Navbar({ currentUser, userRole }: NavbarProps) {
               </li>
             ))}
             {currentUser && userRole === "admin" && (
-              <li>
-                <Link
-                  href="/admin/dashboard"
-                  className="text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
-                >
-                  <LayoutDashboard size={16} />
-                  Dashboard
-                </Link>
-              </li>
-            )}
+                <>
+                  <li>
+                    <Link
+                      href="/admin/dashboard"
+                      className="text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+                    >
+                      <LayoutDashboard size={16} />
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Apakah Anda yakin ingin logout?')) {
+                          signout();
+                        }
+                      }}
+                      className="flex items-center gap-2 bg-gray-900 border border-gray-800 hover:bg-juragan-red hover:text-white px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-gray-300 cursor-pointer"
+                    >
+                      <LogOut size={16} />
+                      Keluar
+                    </button>
+                  </li>
+                </>
+              )}
           </ul>
 
           {currentUser && userRole !== "admin" && (
-            <button
-              onClick={() => signout()}
-              className="flex items-center gap-2 bg-gray-900 border border-gray-800 hover:bg-juragan-red hover:text-white px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-gray-300 cursor-pointer"
-            >
-              <LogOut size={16} />
-              Keluar
-            </button>
-          )}
+                <button
+                  onClick={() => {
+                    if (window.confirm('Apakah Anda yakin ingin logout?')) {
+                      signout();
+                    }
+                  }}
+                  className="flex items-center gap-2 bg-gray-900 border border-gray-800 hover:bg-juragan-red hover:text-white px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-gray-300 cursor-pointer"
+                >
+                  <LogOut size={16} />
+                  Keluar
+                </button>
+              )}
         </nav>
 
         {/* Mobile Toggle */}
@@ -131,11 +150,13 @@ export default function Navbar({ currentUser, userRole }: NavbarProps) {
                 )}
               </ul>
 
-              {currentUser && userRole !== "admin" && (
+              {currentUser && (
                 <button
                   onClick={() => {
-                    setMobileMenuOpen(false);
-                    signout();
+                    if (window.confirm('Apakah Anda yakin ingin logout?')) {
+                      setMobileMenuOpen(false);
+                      signout();
+                    }
                   }}
                   className="flex items-center gap-2 bg-gray-900 border border-gray-800 hover:bg-juragan-red text-white px-8 py-4 rounded-full font-bold text-lg mt-4 cursor-pointer"
                 >

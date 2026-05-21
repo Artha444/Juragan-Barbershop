@@ -47,7 +47,7 @@ export default function WhyChooseUs() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto justify-center">
           {features.map((feature, index) => (
             <motion.div
               key={index}
@@ -55,15 +55,15 @@ export default function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="bg-juragan-darker p-8 rounded-2xl border border-gray-800 hover:border-juragan-red/50 transition-colors group"
+              className="bg-juragan-darker p-6 rounded-2xl border border-gray-800 hover:border-juragan-red/50 hover:shadow-lg transition-all duration-300 group"
             >
-              <div className="bg-juragan-dark w-20 h-20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="bg-juragan-dark w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white group-hover:text-juragan-red transition-colors">
+              <h3 className="text-lg font-bold mb-2 text-white group-hover:text-juragan-red transition-colors">
                 {feature.title}
               </h3>
-              <p className="text-gray-400 leading-relaxed">
+              <p className="text-gray-400 text-sm leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>
