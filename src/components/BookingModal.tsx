@@ -32,8 +32,20 @@ interface BookingModalProps {
 
 const AVAILABLE_HOURS = [
   "10:00", "11:00", "12:00", "13:00", "14:00", "15:00",
-  "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"
+  "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"
 ];
+
+// Helper to get date string in Asia/Jakarta (WIB)
+const getWibDateStr = (date: Date) => {
+  try {
+    return date.toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" });
+  } catch {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+};
 
 export default function BookingModal({
   isOpen,
@@ -180,6 +192,16 @@ export default function BookingModal({
       return;
     }
 
+    if (selectedDate < todayStr || selectedDate > maxDateStr) {
+      setError("Tanggal reservasi harus dalam jangka waktu 1 minggu dari hari ini.");
+      return;
+    }
+
+    if (selectedDate === todayStr && isTimePassed(selectedDate, selectedTime)) {
+      setError("Jam reservasi yang Anda pilih sudah terlewat.");
+      return;
+    }
+
     if (siteKey && !turnstileToken) {
       setError("Silakan centang verifikasi keamanan (captcha) terlebih dahulu.");
       return;
@@ -214,7 +236,7 @@ export default function BookingModal({
           packageDetails += ` + Keramas (+ Rp ${kPrice})`;
         }
 
-        const message = `Halo Admin, saya ${customerName} ingin mengonfirmasi booking pangkas untuk paket ${packageDetails} pada tanggal ${formattedDate} jam ${selectedTime}.`;
+        const message = `Halo Admin, saya ${customerName} ingin mengonfirmasi booking pangkas untuk paket ${packageDetails} pada ${formattedDate} jam ${selectedTime}.`;
         const encodedMessage = encodeURIComponent(message);
         
         let cleanShopPhone = businessWhatsapp;
@@ -235,7 +257,36 @@ export default function BookingModal({
     });
   };
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayObj = new Date();
+  const todayStr = getWibDateStr(todayObj);
+
+  const maxDateObj = new Date(todayObj);
+  maxDateObj.setDate(maxDateObj.getDate() + 7);
+  const maxDateStr = getWibDateStr(maxDateObj);
+
+  const isTimePassed = (dateStr: string, timeStr: string) => {
+    if (dateStr === todayStr) {
+      const [slotHour, slotMinute] = timeStr.split(":").map(Number);
+      const now = new Date();
+      let currentHour = now.getHours();
+      let currentMinute = now.getMinutes();
+
+      try {
+        const timeStrWib = now.toLocaleTimeString("en-US", {
+          hour12: false,
+          timeZone: "Asia/Jakarta",
+        });
+        const [h, m] = timeStrWib.split(":").map(Number);
+        currentHour = h;
+        currentMinute = m;
+      } catch {
+        // fallback to device time
+      }
+
+      return currentHour > slotHour || (currentHour === slotHour && currentMinute >= slotMinute);
+    }
+    return false;
+  };
 
   return (
     <AnimatePresence>
@@ -423,6 +474,7 @@ export default function BookingModal({
                           type="date"
                           required
                           min={todayStr}
+                          max={maxDateStr}
                           value={selectedDate}
                           onChange={(e) => setSelectedDate(e.target.value)}
                           className="w-full pl-9 pr-4 py-2.5 bg-juragan-darker border border-gray-800 rounded-xl text-white focus:outline-none focus:border-juragan-red transition-colors text-sm"
@@ -442,16 +494,18 @@ export default function BookingModal({
                         <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto pr-1">
                           {AVAILABLE_HOURS.map((time) => {
                             const isOccupied = occupiedHours.includes(time);
+                            const isPassed = isTimePassed(selectedDate, time);
+                            const isUnavailable = isOccupied || isPassed;
                             return (
                               <button
                                 key={time}
                                 type="button"
-                                disabled={isOccupied}
+                                disabled={isUnavailable}
                                 onClick={() => setSelectedTime(time)}
                                 className={`py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                                   selectedTime === time
                                     ? "bg-juragan-red text-white border-juragan-red"
-                                    : isOccupied
+                                    : isUnavailable
                                     ? "bg-gray-950 border-gray-900 text-gray-700 cursor-not-allowed"
                                     : "bg-juragan-darker border-gray-800 text-gray-300 hover:border-gray-700"
                                 }`}

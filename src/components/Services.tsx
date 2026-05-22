@@ -48,7 +48,7 @@ export default function Services({ servicesData }: ServicesProps) {
             Belum ada paket layanan yang ditambahkan.
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto justify-center">
             {servicesData.map((service, index) => (
               <motion.div
                 key={service.id}
@@ -72,7 +72,7 @@ export default function Services({ servicesData }: ServicesProps) {
                 )}
 
                 <h3 className="text-lg font-bold mb-2 text-white group-hover:text-juragan-red transition-colors">{service.name}</h3>
-                <div className="text-4xl font-black text-juragan-red mb-3">{service.price}</div>
+                <div className="text-3xl sm:text-4xl font-black text-juragan-red mb-3">{service.price}</div>
 
                 {/* Label Emas Spesial — di bawah harga */}
                 {service.special_badge && (() => {

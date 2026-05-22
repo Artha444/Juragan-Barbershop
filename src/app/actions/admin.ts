@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 // 1. Booking actions
 export async function updateBookingStatus(bookingId: string, status: string) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const { error } = await supabase
     .from("bookings")
@@ -22,7 +22,7 @@ export async function updateBookingStatus(bookingId: string, status: string) {
 
 // 2. Content actions (Hero & Business Info)
 export async function updateContent(id: string, data: any) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const { error } = await supabase
     .from("contents")
@@ -39,11 +39,25 @@ export async function updateContent(id: string, data: any) {
 
 // 3. Storage image uploader
 export async function uploadImage(formData: FormData, folder: string = "general") {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const file = formData.get("file") as File;
 
   if (!file || file.size === 0) {
     return { error: "File tidak valid." };
+  }
+
+  // Auto-create bucket if it doesn't exist
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const bucketExists = buckets?.some((b) => b.name === "barbershop-assets");
+  if (!bucketExists) {
+    const { error: createError } = await supabase.storage.createBucket("barbershop-assets", {
+      public: true,
+      fileSizeLimit: 5 * 1024 * 1024, // 5MB
+      allowedMimeTypes: ["image/png", "image/jpeg", "image/jpg", "image/webp"],
+    });
+    if (createError) {
+      return { error: `Gagal membuat storage bucket: ${createError.message}` };
+    }
   }
 
   const fileExt = file.name.split(".").pop();
@@ -79,7 +93,7 @@ export async function saveService(data: {
   special_badge?: string | null;
   discount_note?: string | null;
 }) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const servicePayload = {
     name: data.name,
@@ -114,7 +128,7 @@ export async function saveService(data: {
 }
 
 export async function deleteService(serviceId: string) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const { error } = await supabase.from("services").delete().eq("id", serviceId);
 
@@ -129,7 +143,7 @@ export async function deleteService(serviceId: string) {
 
 // 5. Gallery CRUD
 export async function addGalleryItem(title: string, imageUrl: string) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const { error } = await supabase
     .from("gallery")
@@ -145,7 +159,7 @@ export async function addGalleryItem(title: string, imageUrl: string) {
 }
 
 export async function deleteGalleryItem(id: string, imagePath?: string) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   // Delete from DB
   const { error } = await supabase.from("gallery").delete().eq("id", id);
