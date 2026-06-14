@@ -56,20 +56,6 @@ export default function Hero({ heroData, onBookingClick }: HeroProps) {
         >
           {heroData.description}
         </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <button
-            onClick={onBookingClick}
-            className="group relative flex items-center gap-3 bg-white text-juragan-darker hover:bg-gray-100 px-8 py-4 rounded-full font-bold text-lg md:text-xl transition-all duration-300 hover:scale-105 cursor-pointer shadow-lg shadow-white/10"
-          >
-            <Calendar className="w-6 h-6 text-juragan-red group-hover:animate-bounce" />
-            <span>Pilih Jadwal Pangkas</span>
-          </button>
-        </motion.div>
       </div>
 
       {/* Scroll indicator */}

@@ -52,7 +52,8 @@ export default function BookingModal({
   onClose,
   services,
   currentUser,
-  businessWhatsapp = "082229989429",
+  // ubah nomor wa di sini gan
+  businessWhatsapp = "085711885620",
 }: BookingModalProps) {
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");

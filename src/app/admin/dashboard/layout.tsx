@@ -30,11 +30,6 @@ export default function AdminLayout({
 
   const menuItems = [
     {
-      name: "Dashboard & Booking",
-      href: "/admin/dashboard",
-      icon: <LayoutDashboard size={20} />,
-    },
-    {
       name: "Konten & Informasi",
       href: "/admin/dashboard/content",
       icon: <FileText size={20} />,

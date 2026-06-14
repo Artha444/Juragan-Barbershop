@@ -68,7 +68,7 @@ export default function Navbar({ currentUser, userRole }: NavbarProps) {
                 <>
                   <li>
                     <Link
-                      href="/admin/dashboard"
+                      href="/admin/dashboard/content"
                       className="text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
                     >
                       <LayoutDashboard size={16} />
@@ -139,7 +139,7 @@ export default function Navbar({ currentUser, userRole }: NavbarProps) {
                 {currentUser && userRole === "admin" && (
                   <li>
                     <Link
-                      href="/admin/dashboard"
+                      href="/admin/dashboard/content"
                       onClick={() => setMobileMenuOpen(false)}
                       className="text-2xl font-display font-semibold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-2 justify-center"
                     >
